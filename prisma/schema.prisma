@@ -1,0 +1,118 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// User entity
+model User {
+  userId        Int           @id @default(autoincrement())
+  username      String
+  email         String        @unique
+  passwordHash  String
+  role          String
+  avatarUrl     String?
+  githubHandle  String?
+  linkedinHandle String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  posts         Post[]
+  comments      Comment[]
+  likes         Like[]
+  topReaders    TopReaders[]
+  topWriters    TopWriters[]
+}
+
+// Post entity
+model Post {
+  postId        Int           @id @default(autoincrement())
+  title         String
+  content       String
+  imageUrl      String?
+  status        String
+  publishAt     DateTime
+  authorId      Int
+  author        User          @relation(fields: [authorId], references: [userId])
+  tags          Tag[]         @relation("PostTags")
+  metadata      PostMetadata?
+  comments      Comment[]
+  likes         Like[]
+  analytics     Analytics[]
+}
+
+// Tag entity
+model Tag {
+  tagId         Int           @id @default(autoincrement())
+  name          String        @unique
+  posts         Post[]        @relation("PostTags")
+}
+
+// Comment entity
+model Comment {
+  commentId     Int           @id @default(autoincrement())
+  content       String
+  postId        Int
+  post          Post          @relation(fields: [postId], references: [postId])
+  userId        Int
+  user          User          @relation(fields: [userId], references: [userId])
+  parentId      Int?
+  parent        Comment?      @relation("ChildComments", fields: [parentId], references: [commentId])
+  childComments Comment[]     @relation("ChildComments")
+}
+
+// Like entity
+model Like {
+  likeId        Int           @id @default(autoincrement())
+  postId        Int
+  post          Post          @relation(fields: [postId], references: [postId])
+  userId        Int
+  user          User          @relation(fields: [userId], references: [userId])
+  isLiked       Boolean
+}
+
+// Analytics entity
+model Analytics {
+  analyticsId   Int           @id @default(autoincrement())
+  postId        Int
+  post          Post          @relation(fields: [postId], references: [postId])
+  viewsCount    Int
+  createdAt     DateTime      @default(now())
+}
+
+// TopReaders entity
+model TopReaders {
+  topReaderId   Int           @id @default(autoincrement())
+  userId        Int
+  user          User          @relation(fields: [userId], references: [userId])
+  totalViews    Int
+  createdAt     DateTime      @default(now())
+}
+
+// TopWriters entity
+model TopWriters {
+  topWriterId   Int           @id @default(autoincrement())
+  userId        Int
+  user          User          @relation(fields: [userId], references: [userId])
+  totalPosts    Int
+  createdAt     DateTime      @default(now())
+}
+
+// PostMetadata entity
+model PostMetadata {
+  metadataId    Int           @id @default(autoincrement())
+  postId        Int @unique
+  post          Post          @relation(fields: [postId], references: [postId])
+  metaTitle     String?
+  metaDescription String?
+  metaKeywords  String[]
+}
+
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
