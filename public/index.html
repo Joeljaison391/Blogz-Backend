@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blogz - Backend Documentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+        nav {
+            background-color: #444;
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+        }
+        nav a {
+            color: #fff;
+            margin: 0 10px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        main {
+            padding: 20px;
+        }
+        section {
+            margin-bottom: 20px;
+        }
+        section h2 {
+            border-bottom: 2px solid #444;
+            padding-bottom: 5px;
+        }
+        .code-block {
+            background-color: #e8e8e8;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Blogz - Backend Documentation</h1>
+    </header>
+    <nav>
+        <a href="#introduction">Introduction</a>
+        <a href="#setup">Setup</a>
+        <a href="#api-endpoints">API Endpoints</a>
+        <a href="#models">Models</a>
+    </nav>
+    <main>
+        <section id="introduction">
+            <h2>Introduction</h2>
+            <p>Welcome to the documentation for the Blogz backend. This document provides an overview of the API endpoints, models, and setup instructions for the backend server.</p>
+        </section>
+        <section id="setup">
+            <h2>Setup</h2>
+            <p>To get started with the Blogz backend, follow these steps:</p>
+            <div class="code-block">
+                <pre>
+git clone https://github.com/your-repo/blogz-backend.git
+cd blogz-backend
+npm install
+npm start
+                </pre>
+            </div>
+        </section>
+        <section id="api-endpoints">
+            <h2>API Endpoints</h2>
+            <p>Below are the API endpoints available in the Blogz backend:</p>
+            <ul>
+                <li><strong>GET /api/users</strong> - Retrieve all users</li>
+                <li><strong>POST /api/users</strong> - Create a new user</li>
+                <li><strong>GET /api/posts</strong> - Retrieve all posts</li>
+                <li><strong>POST /api/posts</strong> - Create a new post</li>
+                <!-- Add more endpoints as needed -->
+            </ul>
+        </section>
+        <section id="models">
+            <h2>Models</h2>
+            <p>The Blogz backend uses the following data models:</p>
+            <ul>
+                <li><strong>User</strong> - Represents a user in the system with fields such as name, email, and password.</li>
+                <li><strong>Post</strong> - Represents a blog post with fields such as title, content, author, and created_at.</li>
+                <!-- Add more models as needed -->
+            </ul>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 Blogz. All rights reserved.</p>
+    </footer>
+</body>
+</html>
