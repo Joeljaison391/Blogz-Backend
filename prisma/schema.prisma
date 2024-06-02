@@ -111,6 +111,14 @@ model PostMetadata {
   metaKeywords  String[]
 }
 
+model RouteAnalytics {
+  routeAnalyticsId Int        @id @default(autoincrement())
+  routePath        String
+  requestCount     Int
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
 
 datasource db {
   provider = "postgresql"
