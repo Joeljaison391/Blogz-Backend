@@ -40,4 +40,14 @@ app.get('/api/test/heatlh', (req, res) => {
     res.json({ status: 'UP', message: 'Database connected' });
 });
 
+app.get('/analytics', async (req, res) => {
+    try {
+        const analyticsData = await prisma.routeAnalytics.findMany();
+        res.json(analyticsData);
+    } catch (error) {
+        console.error('Error fetching analytics data:', error);
+        res.status(500).send('Internal server error');
+    }
+});
+
 module.exports = app;

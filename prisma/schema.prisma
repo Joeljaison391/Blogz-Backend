@@ -113,7 +113,7 @@ model PostMetadata {
 
 model RouteAnalytics {
   routeAnalyticsId Int        @id @default(autoincrement())
-  routePath        String
+  routePath        String     @unique
   requestCount     Int
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt

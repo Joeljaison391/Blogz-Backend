@@ -1,6 +1,7 @@
 const Redis = require('ioredis');
 const dotenv = require('dotenv');
 const { LRUCache } = require('lru-cache')
+const updateRouteAnalytics = require('../utils/updateRouteAnalytics');
 
 dotenv.config();
 
@@ -16,10 +17,9 @@ const cache = new LRUCache({
 
 const routeRateLimits = {
     '/api/test/heatlh': { windowSize: 60, maxRequests: 10 },
-   
 };
 
-const rateLimiter = (req, res, next) => {
+const rateLimiter = async (req, res, next) => {
     const route = req.path;
     const rateLimitOptions = routeRateLimits[route];
 
@@ -31,6 +31,7 @@ const rateLimiter = (req, res, next) => {
     const key = `rate-limit:${route}:${req.ip}`;
     const now = Date.now();
 
+    await updateRouteAnalytics(route);
   
     const cached = cache.get(key);
     if (cached) {
