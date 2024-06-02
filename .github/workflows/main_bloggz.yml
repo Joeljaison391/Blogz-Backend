@@ -20,6 +20,15 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
+          
+      - name: Cache npm dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ matrix.node-version }}-npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-${{ matrix.node-version }}-
+            ${{ runner.os }}-node-
 
       - name: npm install, build, and test
         run: |
