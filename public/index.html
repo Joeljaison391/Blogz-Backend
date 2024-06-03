@@ -98,7 +98,10 @@ npm start
                 <li><strong>POST /api/users</strong> - Create a new user</li>
                 <li><strong>GET /api/posts</strong> - Retrieve all posts</li>
                 <li><strong>POST /api/posts</strong> - Create a new post</li>
-                <!-- Add more endpoints as needed -->
+                <!-- New Endpoints -->
+                <li><strong>POST /api/v2/auth/user</strong> - User authentication routes</li>
+                <li><strong>GET /api/test/health</strong> - Check database health</li>
+                <li><strong>GET /analytics</strong> - Retrieve analytics data</li>
             </ul>
         </section>
         <section id="models">
@@ -107,8 +110,145 @@ npm start
             <ul>
                 <li><strong>User</strong> - Represents a user in the system with fields such as name, email, and password.</li>
                 <li><strong>Post</strong> - Represents a blog post with fields such as title, content, author, and created_at.</li>
-                <!-- Add more models as needed -->
+                <!-- New Models -->
+                <li><strong>Tag</strong> - Represents a tag that can be associated with posts.</li>
+                <li><strong>Comment</strong> - Represents a comment on a post.</li>
+                <li><strong>Like</strong> - Represents a like on a post.</li>
+                <li><strong>Analytics</strong> - Represents analytics data for posts.</li>
+                <li><strong>TopReaders</strong> - Represents users who read the most posts.</li>
+                <li><strong>TopWriters</strong> - Represents users who write the most posts.</li>
+                <li><strong>PostMetadata</strong> - Represents metadata for a post.</li>
+                <li><strong>RouteAnalytics</strong> - Represents analytics data for API routes.</li>
             </ul>
+            <div class="code-block">
+                <pre>
+// User entity
+model User {
+  userId           Int           @id @default(autoincrement())
+  username         String
+  email            String        @unique
+  passwordHash     String
+  role             String        @default("user")
+  avatarUrl        String?
+  githubHandle     String?
+  linkedinHandle   String?
+  joinedDate       DateTime      @default(now())
+  personalWebsite  String?
+  education        String?
+  workPronoun      String?
+  about            String?
+  badges           String[]      @default([])
+  skills           String[]      @default([])
+  availableFor     String[]      @default([])
+  currentlyHacking String?
+  location         String?
+  currentlyLearning String?
+  brandColor       String?
+  authenticated    Boolean       @default(false)
+  authProvider     String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  posts            Post[]
+  comments         Comment[]
+  likes            Like[]
+  topReaders       TopReaders[]
+  topWriters       TopWriters[]
+}
+
+// Post entity
+model Post {
+  postId        Int           @id @default(autoincrement())
+  title         String
+  content       String
+  imageUrl      String?
+  status        String
+  publishAt     DateTime
+  authorId      Int
+  author        User          @relation(fields: [authorId], references: [userId])
+  tags          Tag[]         @relation("PostTags")
+  metadata      PostMetadata?
+  comments      Comment[]
+  likes         Like[]
+  analytics     Analytics[]
+}
+
+// Tag entity
+model Tag {
+  tagId         Int           @id @default(autoincrement())
+  name          String        @unique
+  posts         Post[]        @relation("PostTags")
+}
+
+// Comment entity
+model Comment {
+  commentId     Int           @id @default(autoincrement())
+  content       String
+  postId        Int
+  post          Post          @relation(fields: [postId], references: [postId])
+  userId        Int
+  user          User          @relation(fields: [userId], references: [userId])
+  parentId      Int?
+  parent        Comment?      @relation("ChildComments", fields: [parentId], references: [commentId])
+  childComments Comment[]     @relation("ChildComments")
+}
+
+// Like entity
+model Like {
+  likeId        Int           @id @default(autoincrement())
+  postId        Int
+  post          Post          @relation(fields: [postId], references: [postId])
+  userId        Int
+  user          User          @relation(fields: [userId], references: [userId])
+  isLiked       Boolean
+}
+
+// Analytics entity
+model Analytics {
+  analyticsId   Int           @id @default(autoincrement())
+  postId        Int
+  post          Post          @relation(fields: [postId], references: [postId])
+  viewsCount    Int
+  createdAt     DateTime      @default(now())
+}
+
+// TopReaders entity
+model TopReaders {
+  topReaderId   Int           @id @default(autoincrement())
+  userId        Int
+  user          User          @relation(fields: [userId], references: [userId])
+  totalViews    Int
+  createdAt     DateTime      @default(now())
+}
+
+// TopWriters entity
+model TopWriters {
+  topWriterId   Int           @id @default(autoincrement())
+  userId        Int
+  user          User          @relation(fields: [userId], references: [userId])
+  totalPosts    Int
+  createdAt     DateTime      @default(now())
+}
+
+// PostMetadata entity
+model PostMetadata {
+  metadataId    Int           @id @default(autoincrement())
+  postId        Int @unique
+  post          Post          @relation(fields: [postId], references: [postId])
+  metaTitle     String?
+  metaDescription String?
+  metaKeywords  String[]
+}
+
+// RouteAnalytics entity
+model RouteAnalytics {
+  routeAnalyticsId Int        @id @default(autoincrement())
+  routePath        String     @unique
+  requestCount     Int
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+                </pre>
+            </div>
         </section>
     </main>
     <footer>
