@@ -45,12 +45,24 @@
             border-bottom: 2px solid #444;
             padding-bottom: 5px;
         }
-        .code-block {
+        .code-block, .table-block {
             background-color: #e8e8e8;
             border: 1px solid #ccc;
             padding: 10px;
             margin: 10px 0;
             overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
         }
         footer {
             background-color: #333;
@@ -94,160 +106,262 @@ npm start
             <h2>API Endpoints</h2>
             <p>Below are the API endpoints available in the Blogz backend:</p>
             <ul>
-                <li><strong>GET /api/users</strong> - Retrieve all users</li>
-                <li><strong>POST /api/users</strong> - Create a new user</li>
-                <li><strong>GET /api/posts</strong> - Retrieve all posts</li>
-                <li><strong>POST /api/posts</strong> - Create a new post</li>
-                <!-- New Endpoints -->
-                <li><strong>POST /api/v2/auth/user</strong> - User authentication routes</li>
+                <li><strong>POST /api/v2/auth/user/register</strong> - Register a new user</li>
                 <li><strong>GET /api/test/health</strong> - Check database health</li>
                 <li><strong>GET /analytics</strong> - Retrieve analytics data</li>
             </ul>
+            <div class="code-block">
+                <pre>
+/api/v2/auth/user/register
+Method: POST
+Request Body:
+{
+  "username": "string",
+  "email": "string",
+  "password": "string"
+}
+Response:
+{
+  "userId": "int",
+  "username": "string",
+  "email": "string",
+  "role": "string",
+  "joinedDate": "datetime",
+  "createdAt": "datetime",
+  "updatedAt": "datetime"
+}
+
+/api/test/health
+Method: GET
+Response:
+{
+  "status": "string",
+  "message": "string"
+}
+
+/analytics
+Method: GET
+Response:
+[
+  {
+    "routeAnalyticsId": "int",
+    "routePath": "string",
+    "requestCount": "int",
+    "createdAt": "datetime",
+    "updatedAt": "datetime"
+  }
+]
+                </pre>
+            </div>
         </section>
         <section id="models">
             <h2>Models</h2>
             <p>The Blogz backend uses the following data models:</p>
-            <ul>
-                <li><strong>User</strong> - Represents a user in the system with fields such as name, email, and password.</li>
-                <li><strong>Post</strong> - Represents a blog post with fields such as title, content, author, and created_at.</li>
-                <!-- New Models -->
-                <li><strong>Tag</strong> - Represents a tag that can be associated with posts.</li>
-                <li><strong>Comment</strong> - Represents a comment on a post.</li>
-                <li><strong>Like</strong> - Represents a like on a post.</li>
-                <li><strong>Analytics</strong> - Represents analytics data for posts.</li>
-                <li><strong>TopReaders</strong> - Represents users who read the most posts.</li>
-                <li><strong>TopWriters</strong> - Represents users who write the most posts.</li>
-                <li><strong>PostMetadata</strong> - Represents metadata for a post.</li>
-                <li><strong>RouteAnalytics</strong> - Represents analytics data for API routes.</li>
-            </ul>
-            <div class="code-block">
-                <pre>
-// User entity
-model User {
-  userId           Int           @id @default(autoincrement())
-  username         String
-  email            String        @unique
-  passwordHash     String
-  role             String        @default("user")
-  avatarUrl        String?
-  githubHandle     String?
-  linkedinHandle   String?
-  joinedDate       DateTime      @default(now())
-  personalWebsite  String?
-  education        String?
-  workPronoun      String?
-  about            String?
-  badges           String[]      @default([])
-  skills           String[]      @default([])
-  availableFor     String[]      @default([])
-  currentlyHacking String?
-  location         String?
-  currentlyLearning String?
-  brandColor       String?
-  authenticated    Boolean       @default(false)
-  authProvider     String?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  posts            Post[]
-  comments         Comment[]
-  likes            Like[]
-  topReaders       TopReaders[]
-  topWriters       TopWriters[]
-}
-
-// Post entity
-model Post {
-  postId        Int           @id @default(autoincrement())
-  title         String
-  content       String
-  imageUrl      String?
-  status        String
-  publishAt     DateTime
-  authorId      Int
-  author        User          @relation(fields: [authorId], references: [userId])
-  tags          Tag[]         @relation("PostTags")
-  metadata      PostMetadata?
-  comments      Comment[]
-  likes         Like[]
-  analytics     Analytics[]
-}
-
-// Tag entity
-model Tag {
-  tagId         Int           @id @default(autoincrement())
-  name          String        @unique
-  posts         Post[]        @relation("PostTags")
-}
-
-// Comment entity
-model Comment {
-  commentId     Int           @id @default(autoincrement())
-  content       String
-  postId        Int
-  post          Post          @relation(fields: [postId], references: [postId])
-  userId        Int
-  user          User          @relation(fields: [userId], references: [userId])
-  parentId      Int?
-  parent        Comment?      @relation("ChildComments", fields: [parentId], references: [commentId])
-  childComments Comment[]     @relation("ChildComments")
-}
-
-// Like entity
-model Like {
-  likeId        Int           @id @default(autoincrement())
-  postId        Int
-  post          Post          @relation(fields: [postId], references: [postId])
-  userId        Int
-  user          User          @relation(fields: [userId], references: [userId])
-  isLiked       Boolean
-}
-
-// Analytics entity
-model Analytics {
-  analyticsId   Int           @id @default(autoincrement())
-  postId        Int
-  post          Post          @relation(fields: [postId], references: [postId])
-  viewsCount    Int
-  createdAt     DateTime      @default(now())
-}
-
-// TopReaders entity
-model TopReaders {
-  topReaderId   Int           @id @default(autoincrement())
-  userId        Int
-  user          User          @relation(fields: [userId], references: [userId])
-  totalViews    Int
-  createdAt     DateTime      @default(now())
-}
-
-// TopWriters entity
-model TopWriters {
-  topWriterId   Int           @id @default(autoincrement())
-  userId        Int
-  user          User          @relation(fields: [userId], references: [userId])
-  totalPosts    Int
-  createdAt     DateTime      @default(now())
-}
-
-// PostMetadata entity
-model PostMetadata {
-  metadataId    Int           @id @default(autoincrement())
-  postId        Int @unique
-  post          Post          @relation(fields: [postId], references: [postId])
-  metaTitle     String?
-  metaDescription String?
-  metaKeywords  String[]
-}
-
-// RouteAnalytics entity
-model RouteAnalytics {
-  routeAnalyticsId Int        @id @default(autoincrement())
-  routePath        String     @unique
-  requestCount     Int
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
-}
-                </pre>
+            <div class="table-block">
+                <table>
+                    <tr>
+                        <th>Model</th>
+                        <th>Fields</th>
+                        <th>Relations</th>
+                    </tr>
+                    <tr>
+                        <td>User</td>
+                        <td>
+                            <ul>
+                                <li>userId (Int, @id, @default(autoincrement()))</li>
+                                <li>username (String)</li>
+                                <li>email (String, @unique)</li>
+                                <li>passwordHash (String)</li>
+                                <li>role (String, @default("user"))</li>
+                                <li>avatarUrl (String?)</li>
+                                <li>githubHandle (String?)</li>
+                                <li>linkedinHandle (String?)</li>
+                                <li>joinedDate (DateTime, @default(now()))</li>
+                                <li>personalWebsite (String?)</li>
+                                <li>education (String?)</li>
+                                <li>workPronoun (String?)</li>
+                                <li>about (String?)</li>
+                                <li>badges (String[], @default([]))</li>
+                                <li>skills (String[], @default([]))</li>
+                                <li>availableFor (String[], @default([]))</li>
+                                <li>currentlyHacking (String?)</li>
+                                <li>location (String?)</li>
+                                <li>currentlyLearning (String?)</li>
+                                <li>brandColor (String?)</li>
+                                <li>authenticated (Boolean, @default(false))</li>
+                                <li>authProvider (String?)</li>
+                                <li>createdAt (DateTime, @default(now()))</li>
+                                <li>updatedAt (DateTime, @updatedAt)</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <li>posts (Post[])</li>
+                                <li>comments (Comment[])</li>
+                                <li>likes (Like[])</li>
+                                <li>topReaders (TopReaders[])</li>
+                                <li>topWriters (TopWriters[])</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Post</td>
+                        <td>
+                            <ul>
+                                <li>postId (Int, @id, @default(autoincrement()))</li>
+                                <li>title (String)</li>
+                                <li>content (String)</li>
+                                <li>imageUrl (String?)</li>
+                                <li>status (String)</li>
+                                <li>publishAt (DateTime)</li>
+                                <li>authorId (Int)</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <li>author (User, @relation(fields: [authorId], references: [userId]))</li>
+                                <li>tags (Tag[], @relation("PostTags"))</li>
+                                <li>metadata (PostMetadata?)</li>
+                                <li>comments (Comment[])</li>
+                                <li>likes (Like[])</li>
+                                <li>analytics (Analytics[])</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Tag</td>
+                        <td>
+                            <ul>
+                                <li>tagId (Int, @id, @default(autoincrement()))</li>
+                                <li>name (String, @unique)</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <li>posts (Post[], @relation("PostTags"))</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Comment</td>
+                        <td>
+                            <ul>
+                                <li>commentId (Int, @id, @default(autoincrement()))</li>
+                                <li>content (String)</li>
+                                <li>postId (Int)</li>
+                                <li>userId (Int)</li>
+                                <li>parentId (Int?)</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <li>post (Post, @relation(fields: [postId], references: [postId]))</li>
+                                <li>user (User, @relation(fields: [userId], references: [userId]))</li>
+                                <li>parent (Comment?, @relation("ChildComments", fields: [parentId], references: [commentId]))</li>
+                                <li>childComments (Comment[], @relation("ChildComments"))</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Like</td>
+                        <td>
+                            <ul>
+                                <li>likeId (Int, @id, @default(autoincrement()))</li>
+                                <li>postId (Int)</li>
+                                <li>userId (Int)</li>
+                                <li>isLiked (Boolean)</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <li>post (Post, @relation(fields: [postId], references: [postId]))</li>
+                                <li>user (User, @relation(fields: [userId], references: [userId]))</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Analytics</td>
+                        <td>
+                            <ul>
+                                <li>analyticsId (Int, @id, @default(autoincrement()))</li>
+                                <li>postId (Int)</li>
+                                <li>viewsCount (Int)</li>
+                                <li>createdAt (DateTime, @default(now()))</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <li>post (Post, @relation(fields: [postId], references: [postId]))</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>TopReaders</td>
+                        <td>
+                            <ul>
+                                <li>topReaderId (Int, @id, @default(autoincrement()))</li>
+                                <li>userId (Int)</li>
+                                <li>totalViews (Int)</li>
+                                <li>createdAt (DateTime, @default(now()))</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <li>user (User, @relation(fields: [userId], references: [userId]))</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>TopWriters</td>
+                        <td>
+                            <ul>
+                                <li>topWriterId (Int, @id, @default(autoincrement()))</li>
+                                <li>userId (Int)</li>
+                                <li>totalPosts (Int)</li>
+                                <li>createdAt (DateTime, @default(now()))</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <li>user (User, @relation(fields: [userId], references: [userId]))</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>PostMetadata</td>
+                        <td>
+                            <ul>
+                                <li>metadataId (Int, @id, @default(autoincrement()))</li>
+                                <li>postId (Int, @unique)</li>
+                                <li>metaTitle (String?)</li>
+                                <li>metaDescription (String?)</li>
+                                <li>metaKeywords (String[])</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <li>post (Post, @relation(fields: [postId], references: [postId]))</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>RouteAnalytics</td>
+                        <td>
+                            <ul>
+                                <li>routeAnalyticsId (Int, @id, @default(autoincrement()))</li>
+                                <li>routePath (String, @unique)</li>
+                                <li>requestCount (Int)</li>
+                                <li>createdAt (DateTime, @default(now()))</li>
+                                <li>updatedAt (DateTime, @updatedAt)</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <li>None</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </table>
             </div>
         </section>
     </main>
