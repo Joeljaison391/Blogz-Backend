@@ -10,22 +10,35 @@ generator client {
 
 // User entity
 model User {
-  userId        Int           @id @default(autoincrement())
-  username      String
-  email         String        @unique
-  passwordHash  String
-  role          String
-  avatarUrl     String?
-  githubHandle  String?
-  linkedinHandle String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  posts         Post[]
-  comments      Comment[]
-  likes         Like[]
-  topReaders    TopReaders[]
-  topWriters    TopWriters[]
+  userId           Int           @id @default(autoincrement())
+  username         String
+  email            String        @unique
+  passwordHash     String
+  role             String        @default("user")
+  avatarUrl        String?
+  githubHandle     String?
+  linkedinHandle   String?
+  joinedDate       DateTime      @default(now())
+  personalWebsite  String?
+  education        String?
+  workPronoun      String?
+  about            String?
+  badges           String[]      @default([])
+  skills           String[]      @default([])
+  availableFor     String[]      @default([])
+  currentlyHacking String?
+  location         String?
+  currentlyLearning String?
+  brandColor       String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  posts            Post[]
+  comments         Comment[]
+  likes            Like[]
+  topReaders       TopReaders[]
+  topWriters       TopWriters[]
 }
+
 
 // Post entity
 model Post {
