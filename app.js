@@ -35,7 +35,6 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api/test/heatlh', (req, res) => {
-
     prisma.$connect();
     res.json({ status: 'UP', message: 'Database connected' });
 });
@@ -49,5 +48,9 @@ app.get('/analytics', async (req, res) => {
         res.status(500).send('Internal server error');
     }
 });
+
+
+app.use('/api/v2/auth/user', require('./routes/userAuthRoutes'));
+
 
 module.exports = app;

@@ -11,3 +11,11 @@ app.listen(PORT, () => {
         console.log('Database connected');
     }
 });
+
+process.on('SIGINT', () => {
+    console.log('Shutting down server gracefully...');
+    server.close(() => {
+      console.log('Server has been gracefully shut down');
+      process.exit(0);
+    });
+  });
