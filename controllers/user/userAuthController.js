@@ -3,9 +3,8 @@ const prisma = require("../../config/prismaDb");
 const  bcrypt = require('bcryptjs');
 
 const RegisterUser = async (req, res) => {
-  try {
-    
     const validatedData = userRegistrationSchema.parse(req.body);
+    console.log(validatedData);
 
     await prisma.$transaction(async (prisma) => {
      
@@ -35,8 +34,6 @@ const RegisterUser = async (req, res) => {
 
       
       const hashedPassword = await bcrypt.hash(validatedData.password, 10);
-
-      
       const newUser = await prisma.user.create({
         data: {
           username: validatedData.username,
@@ -63,24 +60,59 @@ const RegisterUser = async (req, res) => {
 
       res.status(201).json({ message: 'User registered successfully', user: newUser });
     });
-  } catch (err) {
-    if (err.name === 'ZodError') {
-      
-      const formattedErrors = err.errors.map((error) => {
-        return {
-          path: error.path.join('.'),
-          message: error.message,
-        };
+};
+
+const GoogleAuth = async (req, res) => {
+  try {
+    const { email, username, avatarUrl } = req.body;
+
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { username },
+          { email }
+        ]
+      }
+    });
+
+    if (existingUser) {
+      res.status(400).json({
+        message: 'Validation error',
+        errors: [
+          {
+            path: existingUser.username === username ? 'username' : 'email',
+            message: existingUser.username === username 
+                      ? 'Username already taken' 
+                      : 'Email already in use'
+          }
+        ]
       });
-      
-      res.status(400).json({ message: 'Validation error', errors: formattedErrors });
-    } else if (err.message !== 'Validation error') {
-      
+      throw new Error('Validation error');
+    }
+
+    await prisma.$transaction(async (prisma) => {
+      const newUser = await prisma.user.create({
+        data: {
+          username,
+          email,
+          avatarUrl,
+          role: 'user',
+        },
+      });
+
+      res.status(201).json({ message: 'User registered successfully', user: newUser });
+    });
+  } catch (err) {
+    if (err.message !== 'Validation error') {
       res.status(500).json({ message: 'Internal server error', error: err.message });
     }
   }
 };
 
+const LoginUser = async (req, res) => {
+
+
+}
 module.exports = {
   RegisterUser,
 };

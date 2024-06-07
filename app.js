@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const rateLimiter = require('./middlewares/rateLimiter');
 const cors = require('cors');
+const errorMiddleware = require('./middlewares/errorMiddleware');
 
 const app = express();
 app.use(express.json());
@@ -51,6 +52,8 @@ app.get('/analytics', async (req, res) => {
 
 
 app.use('/api/v2/auth/user', require('./routes/userAuthRoutes'));
+
+app.use(errorMiddleware);
 
 
 module.exports = app;
