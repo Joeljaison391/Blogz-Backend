@@ -2,9 +2,9 @@ const { userRegistrationSchema , userLoginSchema , resetPaswordSchema  } = requi
 const prisma = require("../../config/prismaDb");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { generateToken } = require("../../utils/jwtUtils");
+const { generateToken  } = require("../../utils/jwtUtils");
 const { sendResetEmail } = require("../../utils/emailUtils");
-const { generateResetToken } = require("../../utils/tokenUtils");
+const { generateResetToken , generateVerificationToken } = require("../../utils/tokenUtils");
 
 const RegisterUser = async (req, res) => {
   const validatedData = userRegistrationSchema.parse(req.body);
@@ -257,7 +257,7 @@ const RefreshToken = async (req, res) => {
 
 }
  
-const requestPasswordReset = async (req, res) => {
+const RequestPasswordReset = async (req, res) => {
   const { email } = req.body;
 
   if (!email) {
@@ -286,7 +286,7 @@ const requestPasswordReset = async (req, res) => {
   res.status(200).json({ message: 'Password reset email sent' });
 };
 
-const resetPassword = async (req, res) => {
+const ResetPassword = async (req, res) => {
   const validatedData = resetPaswordSchema.parse(req.body);
 
   const { token, password } = validatedData;
@@ -315,7 +315,7 @@ const resetPassword = async (req, res) => {
     }),
     prisma.user.update({
       where: {
-        id: resetToken.userId,
+        userId: resetToken.userId,
       },
       data: {
         passwordHash: hashedPassword,
@@ -327,11 +327,69 @@ const resetPassword = async (req, res) => {
 };
 
 
+const RequestEmailVerification = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  const user = await prisma.user.findUnique({ where: { email } });
+
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  if (user.isVerified) {
+    return res.status(400).json({ message: 'User is already verified' });
+  }
+
+  const token = generateVerificationToken();
+  const expires = new Date(Date.now() + 3600000); 
+  await prisma.emailVerificationToken.create({
+    data: {
+      userId: user.id,
+      token,
+      expiresAt: expires,
+    },
+  });
+  const text = "You requested an email verification. Click the link to verify your email:"
+
+  await sendVerificationEmail(email, token , text);
+
+  res.status(200).json({ message: 'Verification email sent' });
+};
+
+const VerifyEmail = async (req, res) => {
+  const { token } = req.body;
+
+  if (!token) {
+    return res.status(400).json({ message: 'Token is required' });
+  }
+
+  const verificationToken = await prisma.emailVerificationToken.findUnique({ where: { token } });
+
+  if (!verificationToken || verificationToken.expiresAt < new Date()) {
+    return res.status(400).json({ message: 'Invalid or expired token' });
+  }
+
+  await prisma.user.update({
+    where: { userId: verificationToken.userId },
+    data: { authenticated: true },
+  });
+
+  await prisma.emailVerificationToken.delete({ where: { token } });
+
+  res.status(200).json({ message: 'Email verified successfully' });
+};
+
 module.exports = {
   RegisterUser,
   LoginUser,
   LogoutUser,
   RefreshToken,
-  resetPassword,
-  requestPasswordReset,
+  ResetPassword,
+  RequestPasswordReset,
+  RequestEmailVerification,
+  VerifyEmail
 };
