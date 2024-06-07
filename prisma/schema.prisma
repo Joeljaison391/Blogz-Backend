@@ -153,7 +153,7 @@ model LoginLog {
 
 // Session entity
 model Session {
-  sessionId   Int      @id @default(autoincrement())
+  sessionId   Int      @id @default(autoincrement()) @unique
   user        User     @relation(fields: [userId], references: [userId])
   userId      Int
   createdAt   DateTime @default(now())
