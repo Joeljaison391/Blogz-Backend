@@ -138,7 +138,7 @@ const LoginUser = async (req, res) => {
   const token = generateToken(user);
 
 
-  const loginLog = await prisma.loginLog.create({
+   await prisma.loginLog.create({
     data: {
       userId: user.id,
       ip: req.ip,
@@ -147,10 +147,17 @@ const LoginUser = async (req, res) => {
     }
   });
 
-  if (!loginLog) {
-    res.status(500)
-    return;
-  }
+
+  console.log(req.ip);
+    await prisma.session.create({
+    data: {
+      userId: user.id,
+      token,
+      ip: req.ip,
+      device: req.headers['user-agent'],
+      location: req.headers['x-forwarded-for'] || req.connection.remoteAddress
+    }
+  });
 
   res.cookie('token', token, {
     httpOnly: true,
