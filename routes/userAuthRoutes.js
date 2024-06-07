@@ -1,14 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const asyncHandler = require('../middlewares/asyncHandler');
+const authenticateJWT = require('../middlewares/authenticateJWT');
 
-
-const {RegisterUser} = require('../controllers/user/userAuthController')
+const {RegisterUser , LoginUser , LogoutUser} = require('../controllers/user/userAuthController')
 
 router.post("/register",asyncHandler(RegisterUser));
-
-
+router.post("/login",asyncHandler(LoginUser));
+router.post("/logout",authenticateJWT,asyncHandler(LogoutUser));
 
 module.exports = router;
-
-
