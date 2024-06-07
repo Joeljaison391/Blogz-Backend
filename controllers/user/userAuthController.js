@@ -137,13 +137,27 @@ const LoginUser = async (req, res) => {
 
   const token = generateToken(user);
 
+
+  const loginLog = await prisma.loginLog.create({
+    data: {
+      userId: user.id,
+      ip: req.ip,
+      device: req.headers['user-agent'],
+      location: req.headers['x-forwarded-for'] || req.connection.remoteAddress
+    }
+  });
+
+  if (!loginLog) {
+    res.status(500)
+    return;
+  }
+
   res.cookie('token', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production', 
     sameSite: 'strict',
     maxAge: 3600000, 
   });
-
 
   res.status(200).json({ message: 'Logged in successfully', user });
 };
