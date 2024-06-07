@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -45,6 +42,7 @@ model User {
   topReaders       TopReaders[]
   topWriters       TopWriters[]
   loginLogs        LoginLog[]    // Added relation to LoginLog
+  sessions         Session[]     // Added relation to Session
 }
 
 // Post entity
@@ -149,6 +147,20 @@ model LoginLog {
   ip        String
   device    String
   location  String?
+
+  @@index([userId])
+}
+
+// Session entity
+model Session {
+  sessionId   Int      @id @default(autoincrement())
+  user        User     @relation(fields: [userId], references: [userId])
+  userId      Int
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime
+  sessionData String
+  ip          String?
+  userAgent   String?
 
   @@index([userId])
 }
