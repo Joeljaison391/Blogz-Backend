@@ -8,6 +8,11 @@ generator client {
   provider = "prisma-client-js"
 }
 
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
 // User entity
 model User {
   userId           Int           @id @default(autoincrement())
@@ -39,8 +44,8 @@ model User {
   likes            Like[]
   topReaders       TopReaders[]
   topWriters       TopWriters[]
+  loginLogs        LoginLog[]    // Added relation to LoginLog
 }
-
 
 // Post entity
 model Post {
@@ -126,6 +131,7 @@ model PostMetadata {
   metaKeywords  String[]
 }
 
+// RouteAnalytics entity
 model RouteAnalytics {
   routeAnalyticsId Int        @id @default(autoincrement())
   routePath        String     @unique
@@ -134,8 +140,15 @@ model RouteAnalytics {
   updatedAt        DateTime   @updatedAt
 }
 
+// LoginLog entity
+model LoginLog {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [userId])
+  userId    Int
+  timestamp DateTime @default(now())
+  ip        String
+  device    String
+  location  String?
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  @@index([userId])
 }
