@@ -1,6 +1,8 @@
 const { userRegistrationSchema } = require("../../utils/zod/schema");
 const prisma = require("../../config/prismaDb");
 const  bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { generateToken } = require("../../utils/jwtUtils");
 
 const RegisterUser = async (req, res) => {
     const validatedData = userRegistrationSchema.parse(req.body);
@@ -110,9 +112,44 @@ const GoogleAuth = async (req, res) => {
 };
 
 const LoginUser = async (req, res) => {
+  const { identifier, password } = req.body;
+
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { email: identifier },
+        { username: identifier }
+      ]
+    }
+  });
+
+  if (!user) {
+    res.status(404).json({ message: 'User not found' });
+    return;
+  }
+
+  const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+
+  if (!isPasswordValid) {
+    res.status(401).json({ message: 'Invalid credentials' });
+    return;
+  }
+
+  const token = generateToken(user);
+
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', 
+    sameSite: 'strict',
+    maxAge: 3600000, 
+  });
 
 
-}
+  res.status(200).json({ message: 'Logged in successfully', user });
+};
+
+
 module.exports = {
   RegisterUser,
+  LoginUser,
 };
