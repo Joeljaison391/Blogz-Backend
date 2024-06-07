@@ -157,9 +157,8 @@ const LoginUser = async (req, res) => {
       });
 
       if (existingSession) {
-        console.log("Updating existing session");
         await tx.session.update({
-          where: { id: existingSession.id },
+          where: { sessionId: existingSession.sessionId },
           data: {
             ip: req.ip,
             userAgent: req.headers["user-agent"],
