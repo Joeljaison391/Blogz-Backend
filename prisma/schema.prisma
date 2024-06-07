@@ -43,6 +43,8 @@ model User {
   topWriters       TopWriters[]
   loginLogs        LoginLog[]    // Added relation to LoginLog
   sessions         Session[]     // Added relation to Session
+  passwordResetTokens PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
 }
 
 // Post entity
@@ -163,4 +165,21 @@ model Session {
   userAgent   String?
 
   @@index([userId])
+}
+
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String   @unique
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [userId])
+}
+
+model EmailVerificationToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String   @unique
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [userId])
 }
