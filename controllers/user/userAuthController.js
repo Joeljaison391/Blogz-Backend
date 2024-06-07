@@ -1,12 +1,13 @@
-const { userRegistrationSchema } = require("../../utils/zod/schema");
+const { userRegistrationSchema , userLoginSchema , resetPaswordSchema  } = require("../../utils/zod/schema");
 const prisma = require("../../config/prismaDb");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { generateToken } = require("../../utils/jwtUtils");
+const { sendResetEmail } = require("../../utils/emailUtils");
+const { generateResetToken } = require("../../utils/tokenUtils");
 
 const RegisterUser = async (req, res) => {
   const validatedData = userRegistrationSchema.parse(req.body);
-  console.log(validatedData);
 
   await prisma.$transaction(async (prisma) => {
     const existingUser = await prisma.user.findFirst({
@@ -118,7 +119,8 @@ const GoogleAuth = async (req, res) => {
 };
 
 const LoginUser = async (req, res) => {
-  const { identifier, password } = req.body;
+    const validatedData = userLoginSchema.parse(req.body);
+   const { identifier, password } = validatedData;
 
     await prisma.$transaction(async (tx) => {
       const user = await tx.user.findFirst({
@@ -211,8 +213,125 @@ const LogoutUser = async (req, res) => {
 }
 
 
+const RefreshToken = async (req, res) => {
+
+  const token = req.cookies.token;
+
+  const session = await prisma.session.findFirst({
+    where: {
+      sessionData: token,
+    },
+  });
+
+  if (!session) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  const user = await prisma.user.findFirst({
+    where: {
+      userId: session.userId,
+    },
+  });
+
+  const newToken = generateToken(user);
+
+  await prisma.session.update({
+    where: {
+      sessionId: session.sessionId,
+    },
+    data: {
+      sessionData: newToken,
+      expiresAt: new Date(Date.now() + 3600000),
+    },
+  });
+
+  res.cookie("token", newToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 3600000, // 1 hour in milliseconds
+  });
+
+  res.status(200).json({ message: "Token refreshed" });
+
+}
+ 
+const requestPasswordReset = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  const user = await prisma.user.findUnique({ where: { email } });
+
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  const token = generateResetToken();
+  const expires = new Date(Date.now() + 3600000); 
+
+  await prisma.passwordResetToken.create({
+    data: {
+      userId: user.id,
+      token,
+      expiresAt: expires,
+    },
+  });
+ const text = "You requested a password reset. Click the link to reset your password:"
+  await sendResetEmail(email, token , text);
+
+  res.status(200).json({ message: 'Password reset email sent' });
+};
+
+const resetPassword = async (req, res) => {
+  const validatedData = resetPaswordSchema.parse(req.body);
+
+  const { token, password } = validatedData;
+
+
+  const resetToken = await prisma.passwordResetToken.findFirst({
+    where: {
+      token,
+      expiresAt: {
+        gte: new Date(),
+      },
+    },
+  });
+
+  if (!resetToken) {
+    return res.status(400).json({ message: 'Invalid or expired token' });
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  await prisma.$transaction([
+    prisma.passwordResetToken.delete({
+      where: {
+        token,
+      },
+    }),
+    prisma.user.update({
+      where: {
+        id: resetToken.userId,
+      },
+      data: {
+        passwordHash: hashedPassword,
+      },
+    }),
+  ]);
+
+  res.status(200).json({ message: 'Password reset successfully' });
+};
+
+
 module.exports = {
   RegisterUser,
   LoginUser,
-  LogoutUser
+  LogoutUser,
+  RefreshToken,
+  resetPassword,
+  requestPasswordReset,
 };

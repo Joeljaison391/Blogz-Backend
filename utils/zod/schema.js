@@ -30,8 +30,23 @@ const userRegistrationSchema = z.object({
     currentlyLearning: z.string().optional(),
     brandColor: z.string().optional()
   });
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const userLoginSchema = z.object({
+    identifier: z.string().min(1, 'Identifier is required').refine((val) => {
+      return emailRegex.test(val) || val.length > 0;
+    }, 'Identifier must be a valid email or non-empty username'),
+    password: z.string().min(6, 'Password must be at least 6 characters long')
+  });
   
+  const resetPaswordSchema = z.object({
+    email: z.string().email('Invalid email address'),
+    password: z.string().min(6, 'Password must be at least 6 characters long')
+  });
 
 module.exports = {
-    userRegistrationSchema
+    userRegistrationSchema,
+    userLoginSchema,
+    resetPaswordSchema
 }
