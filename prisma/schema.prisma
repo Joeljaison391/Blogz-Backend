@@ -158,7 +158,7 @@ model Session {
   userId      Int
   createdAt   DateTime @default(now())
   expiresAt   DateTime
-  sessionData String
+  sessionData String  @unique
   ip          String?
   userAgent   String?
 
