@@ -389,6 +389,23 @@ const VerifyEmail = async (req, res) => {
   res.status(200).json({ message: 'Email verified successfully' });
 };
 
+
+const GetUserByEmail = async (req, res) => {
+  const { email } = req.params;
+
+  const user = await prisma.user.findFirst({
+    where: {
+      email,
+    },
+  });
+
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  res.status(200).json({ user });
+};
+
 module.exports = {
   RegisterUser,
   LoginUser,
@@ -397,5 +414,6 @@ module.exports = {
   ResetPassword,
   RequestPasswordReset,
   RequestEmailVerification,
-  VerifyEmail
+  VerifyEmail,
+  GetUserByEmail
 };
