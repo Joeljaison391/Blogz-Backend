@@ -142,7 +142,7 @@ const LoginUser = async (req, res) => {
       }
 
       const token = generateToken(user);
-      console.log(user.userId);
+      
 
       await tx.loginLog.create({
         data: {
@@ -169,7 +169,7 @@ const LoginUser = async (req, res) => {
           },
         });
       } else {
-        console.log("Creating new session");
+        
         await tx.session.create({
           data: {
             userId: user.userId,
@@ -340,7 +340,6 @@ const RequestEmailVerification = async (req, res) => {
     },
   });
 
-  console.log(user);
 
   if (!user) {
     return res.status(404).json({ message: 'User not found' });
