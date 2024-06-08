@@ -328,13 +328,19 @@ const ResetPassword = async (req, res) => {
 
 
 const RequestEmailVerification = async (req, res) => {
-  const { email } = req.body;
+  const { identifier } = req.body;
 
-  if (!email) {
+  if (!identifier) {
     return res.status(400).json({ message: 'Email is required' });
   }
 
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [{ email: identifier }, { username: identifier }],
+    },
+  });
+
+  console.log(user);
 
   if (!user) {
     return res.status(404).json({ message: 'User not found' });
@@ -346,16 +352,17 @@ const RequestEmailVerification = async (req, res) => {
 
   const token = generateVerificationToken();
   const expires = new Date(Date.now() + 3600000); 
+  
   await prisma.emailVerificationToken.create({
     data: {
-      userId: user.id,
+      userId: user.userId,
       token,
       expiresAt: expires,
     },
   });
   const text = "You requested an email verification. Click the link to verify your email:"
 
-  await sendVerificationEmail(email, token , text);
+  await sendResetEmail(user.email, token , text);
 
   res.status(200).json({ message: 'Verification email sent' });
 };
