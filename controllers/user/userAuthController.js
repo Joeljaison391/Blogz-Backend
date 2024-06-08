@@ -345,7 +345,7 @@ const RequestEmailVerification = async (req, res) => {
     return res.status(404).json({ message: 'User not found' });
   }
 
-  if (user.isVerified) {
+  if (user.authenticated) {
     return res.status(400).json({ message: 'User is already verified' });
   }
 
