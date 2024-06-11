@@ -55,12 +55,13 @@ app.get('/analytics', async (req, res) => {
 
 
 app.use('/api/v2/auth/user', require('./routes/userAuthRoutes'));
+app.use('/api/v2/user', require('./routes/userProfileRoutes'));
 
 // Clean up test users
 //⚠️ Warning: This will delete all users from the database
 app.delete('/reset-database', async (req, res) => {
     try {
-        // Deleting records from tables with foreign key dependencies first
+        
         await prisma.loginLog.deleteMany();
         await prisma.session.deleteMany();
         await prisma.passwordResetToken.deleteMany();
@@ -74,8 +75,6 @@ app.delete('/reset-database', async (req, res) => {
         await prisma.post.deleteMany();
         await prisma.tag.deleteMany();
         await prisma.routeAnalytics.deleteMany();
-
-        // Deleting records from the User table
         await prisma.user.deleteMany();
 
         res.json({ message: 'All tables have been reset' });

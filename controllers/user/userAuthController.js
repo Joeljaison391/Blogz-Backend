@@ -1,4 +1,4 @@
-const { userRegistrationSchema , userLoginSchema , resetPaswordSchema  } = require("../../utils/zod/schema");
+const { userRegistrationSchema , userLoginSchema , resetPaswordSchema , userUpdateSchema  } = require("../../utils/zod/schema");
 const prisma = require("../../config/prismaDb");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -7,7 +7,6 @@ const { sendResetEmail } = require("../../utils/emailUtils");
 const { generateResetToken , generateVerificationToken } = require("../../utils/tokenUtils");
 
 const RegisterUser = async (req, res) => {
-  console.log(req.body);
   const validatedData = userRegistrationSchema.parse(req.body);
 
   await prisma.$transaction(async (prisma) => {
@@ -407,6 +406,28 @@ const GetUserByEmail = async (req, res) => {
   res.status(200).json({ user });
 };
 
+const UpdateUser = async (req, res) => {
+
+    const validatedData = userUpdateSchema.parse(req.body);
+    const userId = req.user.userId; 
+
+    const updateData = {};
+    for (const key in validatedData) {
+      if (validatedData[key] !== undefined) {
+        updateData[key] = validatedData[key];
+      }
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: {
+        userId: parseInt(userId),
+      },
+      data: updateData,
+    });
+
+    res.status(200).json({ message: "User details updated successfully", user: updatedUser });
+};
+
 module.exports = {
   RegisterUser,
   LoginUser,
@@ -416,5 +437,6 @@ module.exports = {
   RequestPasswordReset,
   RequestEmailVerification,
   VerifyEmail,
-  GetUserByEmail
+  GetUserByEmail,
+  UpdateUser
 };
