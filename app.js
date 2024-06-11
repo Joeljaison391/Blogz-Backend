@@ -51,7 +51,39 @@ app.get('/analytics', async (req, res) => {
 });
 
 
+
+
+
 app.use('/api/v2/auth/user', require('./routes/userAuthRoutes'));
+
+// Clean up test users
+//⚠️ Warning: This will delete all users from the database
+app.delete('/reset-database', async (req, res) => {
+    try {
+        // Deleting records from tables with foreign key dependencies first
+        await prisma.loginLog.deleteMany();
+        await prisma.session.deleteMany();
+        await prisma.passwordResetToken.deleteMany();
+        await prisma.emailVerificationToken.deleteMany();
+        await prisma.comment.deleteMany();
+        await prisma.like.deleteMany();
+        await prisma.analytics.deleteMany();
+        await prisma.topReaders.deleteMany();
+        await prisma.topWriters.deleteMany();
+        await prisma.postMetadata.deleteMany();
+        await prisma.post.deleteMany();
+        await prisma.tag.deleteMany();
+        await prisma.routeAnalytics.deleteMany();
+
+        // Deleting records from the User table
+        await prisma.user.deleteMany();
+
+        res.json({ message: 'All tables have been reset' });
+    } catch (error) {
+        console.error('Error resetting database:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+});
 
 app.use(errorMiddleware);
 

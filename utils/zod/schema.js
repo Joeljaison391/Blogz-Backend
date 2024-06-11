@@ -2,12 +2,7 @@ const {z} = require('zod');
 
 
 
-const dateString = z.string().refine((val) => {
-  const date = new Date(val);
-  return !isNaN(date.getTime());
-}, {
-  message: "Invalid date format"
-}).transform((val) => new Date(val));
+
 
 const userRegistrationSchema = z.object({
     username: z.string().min(1, 'Username is required'),
@@ -17,7 +12,7 @@ const userRegistrationSchema = z.object({
     avatarUrl: z.string().url('Invalid URL').optional(),
     githubHandle: z.string().optional(),
     linkedinHandle: z.string().optional(),
-    joinedDate: dateString.default(() => new Date()),
+    joinedDate: z.string().default(new Date().toISOString()),
     personalWebsite: z.string().url('Invalid URL').optional(),
     education: z.string().optional(),
     workPronoun: z.string().optional(),

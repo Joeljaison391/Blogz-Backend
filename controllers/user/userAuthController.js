@@ -7,6 +7,7 @@ const { sendResetEmail } = require("../../utils/emailUtils");
 const { generateResetToken , generateVerificationToken } = require("../../utils/tokenUtils");
 
 const RegisterUser = async (req, res) => {
+  console.log(req.body);
   const validatedData = userRegistrationSchema.parse(req.body);
 
   await prisma.$transaction(async (prisma) => {
