@@ -368,3 +368,10 @@ Contributions to this project are welcome and encouraged! Here's how you can con
 8. **Review and Merge**: Collaborate with the project maintainers to review and merge your changes into the main branch.
 
 9. **Celebrate**: Congratulations! You have successfully contributed to the project. Thank you for your contribution!
+
+
+### Important Links
+
+- [Front-end Repository](https://github.com/Joeljaison391/Blogz): Repository for the front-end of Blogz.
+- [Blogz App](https://bloggzz.vercel.app/): Visit the live Blogz application.
+- [Postman API Documentation](https://documenter.getpostman.com/view/24899630/2sA3XMj3wX): Explore the API endpoints with Postman.
