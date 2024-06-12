@@ -14,8 +14,6 @@ app.listen(PORT, () => {
 
 process.on('SIGINT', () => {
     console.log('Shutting down server gracefully...');
-    server.close(() => {
-      console.log('Server has been gracefully shut down');
-      process.exit(0);
-    });
+    prisma.$disconnect();
+    process.exit(0);
   });
