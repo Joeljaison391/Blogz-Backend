@@ -6,8 +6,4 @@ const express = require('express');
 const router = express.Router();
 
 router.put('/update', authenticateJWT , asyncHandler(UpdateUser));
-
-
-
-
 module.exports = router;
