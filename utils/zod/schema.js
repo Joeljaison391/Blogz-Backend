@@ -1,9 +1,6 @@
 const {z} = require('zod');
 
 
-
-
-
 const userRegistrationSchema = z.object({
     username: z.string().min(1, 'Username is required'),
     email: z.string().email('Invalid email address'),
@@ -57,6 +54,8 @@ const userRegistrationSchema = z.object({
     currentlyLearning: z.string().optional(),
     brandColor: z.string().optional(),
   }).partial();
+
+
 module.exports = {
     userRegistrationSchema,
     userLoginSchema,
