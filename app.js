@@ -56,6 +56,7 @@ app.get('/analytics', async (req, res) => {
 
 app.use('/api/v2/auth/user', require('./routes/userAuthRoutes'));
 app.use('/api/v2/user', require('./routes/userProfileRoutes'));
+app.use('/api/v2/posts', require('./routes/postRecommendation'));
 
 // Clean up test users
 //⚠️ Warning: This will delete all users from the database
