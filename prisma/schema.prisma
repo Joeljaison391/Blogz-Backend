@@ -62,6 +62,14 @@ model Post {
   comments      Comment[]
   likes         Like[]
   analytics     Analytics[]
+  postVector    PostVector[]
+}
+
+model PostVector {
+  id        Int     @id @default(autoincrement())
+  postId    Int     @unique
+  post      Post    @relation(fields: [postId], references: [postId])
+  vector    Float[] // Storing vectors as arrays of floats
 }
 
 // Tag entity
