@@ -14,7 +14,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(rateLimiter);
 
-
 const ORIGIN_URLS = process.env.ORIGIN_URLS ? process.env.ORIGIN_URLS.split(',') : [];
 
 const corsOptions = {
@@ -35,8 +34,8 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.get('/api/test/heatlh', (req, res) => {
-    prisma.$connect();
+app.get('/api/test/heatlh', async (req, res) => {
+    await prisma.$connect();
     res.json({ status: 'UP', message: 'Database connected' });
 });
 
@@ -50,12 +49,9 @@ app.get('/analytics', async (req, res) => {
     }
 });
 
-
-
-
-
 app.use('/api/v2/auth/user', require('./routes/userAuthRoutes'));
 app.use('/api/v2/user', require('./routes/userProfileRoutes'));
+app.use("/api/v2/post/user", require("./routes/userPostRoutes"))
 
 // Clean up test users
 //⚠️ Warning: This will delete all users from the database

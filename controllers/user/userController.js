@@ -1,4 +1,4 @@
-const { userUpdateSchema } = require("../../utils/zod/schema");
+const { userUpdateSchema } = require("../../utils/zod/userSchema");
 const prisma = require("../../config/prismaDb");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");

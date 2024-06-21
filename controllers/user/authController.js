@@ -1,7 +1,7 @@
 const {
   userRegistrationSchema,
   userLoginSchema,
-} = require("../../utils/zod/schema");
+} = require("../../utils/zod/userSchema");
 const prisma = require("../../config/prismaDb");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -121,6 +121,7 @@ const GoogleAuth = async (req, res) => {
 };
 
 const LoginUser = async (req, res) => {
+  console.log("starting logging")
   const validatedData = userLoginSchema.parse(req.body);
   const { identifier, password } = validatedData;
 
@@ -180,15 +181,16 @@ const LoginUser = async (req, res) => {
         },
       });
     }
-
+   
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: 3600000, // 1 hour in milliseconds
     });
-
-    res.status(200).json({ message: "Logged in successfully", user });
+    
+    console.log("logged")
+    return res.status(200).json({ message: "Logged in successfully", user });
   });
 };
 

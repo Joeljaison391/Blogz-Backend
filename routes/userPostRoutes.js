@@ -1,7 +1,13 @@
 const router = require("express").Router();
 const authenticateJWT = require("../middlewares/authenticateJWT")
 const asyncHandler = require("../middlewares/asyncHandler");
+const {CreatePost, UpdatePost, DeletePost} = require("../controllers/post/postController");
+const { GetPostById, GetAllPosts, SearchPost } = require("../controllers/post/postReadController");
 
 router.post("/createPost",authenticateJWT, asyncHandler(CreatePost));
-router.post("/updatePost",authenticateJWT, asyncHandler(UpdatePost));
-router.post("/deletePost",authenticateJWT, asyncHandler(DeletePost));
+router.put("/updatePost/:postId",authenticateJWT, asyncHandler(UpdatePost));
+router.delete("/deletePost/:postId",authenticateJWT, asyncHandler(DeletePost));
+router.get("/getPost/:postId", asyncHandler(GetPostById));
+router.get("/getAllPosts", asyncHandler(GetAllPosts))
+router.get("/search", asyncHandler(SearchPost))
+module.exports = router;

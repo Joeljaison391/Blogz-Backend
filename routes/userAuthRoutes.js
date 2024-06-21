@@ -3,7 +3,7 @@ const router = express.Router();
 const asyncHandler = require('../middlewares/asyncHandler');
 const authenticateJWT = require('../middlewares/authenticateJWT');
 
-const {RegisterUser , LoginUser , LogoutUser , RefreshToken } = require('../controllers/user/authController')
+const { RegisterUser , LoginUser , LogoutUser , RefreshToken } = require('../controllers/user/authController')
 const { RequestPasswordReset , ResetPassword }  = require("../controllers/user/passwordController")
 const { RequestEmailVerification, VerifyEmail, GetUserByEmail} = require("../controllers/user/userController")
 

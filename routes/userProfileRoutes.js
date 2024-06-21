@@ -1,4 +1,4 @@
-const { UpdateUser } = require('../controllers/user/userAuthController');
+const { UpdateUser } = require('../controllers/user/userController');
 const asyncHandler = require('../middlewares/asyncHandler');
 const authenticateJWT = require('../middlewares/authenticateJWT');
 

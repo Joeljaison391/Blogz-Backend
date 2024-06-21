@@ -60,7 +60,7 @@ model Post {
   tags          Tag[]         @relation("PostTags")
   metadata      PostMetadata?
   comments      Comment[]
-  likes         Like[]
+  likes         Like[] 
   analytics     Analytics[]
 }
 
