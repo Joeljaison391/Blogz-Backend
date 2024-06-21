@@ -17,8 +17,6 @@ function stemDocument(document) {
   return stemmedDocument;
 }
 
-
-
 const expandWordsWithSynonyms = async (words) => {
   const natural = require("natural");
   const wordnet = new natural.WordNet();
