@@ -2,6 +2,8 @@ const prisma = require("../../config/prismaDb");
 const { PostIdSchema } = require("../../utils/zod/postSchema");
 
 const GetPostById = async (req, res) => {
+
+
   const postId = req.params.postId;
   //const validatedData = PostIdSchema.parse(postId);
 
@@ -30,14 +32,43 @@ const GetPostById = async (req, res) => {
 };
 
 const GetAllPosts = async (req, res) => {
-  const posts = await prisma.post.findMany({});
+  const { page = 1, limit = 10 } = req.query;
 
   try {
-    if (!posts) return res.status(404).json({ message: "No Posts found" });
+    const parsedPage = parseInt(page, 10);
+    const parsedLimit = parseInt(limit, 10);
+
+    if (isNaN(parsedPage) || isNaN(parsedLimit)) {
+      return res.status(400).json({ message: "Invalid page or limit values" });
+    }
+
+    const posts = await prisma.post.findMany({
+      skip: (parsedPage - 1) * parsedLimit,
+      take: parsedLimit,
+      include: {
+        author: {
+          select: {
+            username: true,
+          },
+        },
+      },
+    });
+
+    const totalPosts = await prisma.post.count();
+
+    if (posts.length === 0) {
+      return res.status(404).json({ message: "No Posts found" });
+    }
 
     return res.status(200).json({
       message: `${posts.length} posts found`,
-      posts: posts,
+      posts: posts.map(post => ({
+        ...post,
+        authorName: post.author.username,
+      })),
+      totalPosts: totalPosts,
+      totalPages: Math.ceil(totalPosts / parsedLimit),
+      currentPage: parsedPage,
     });
   } catch (error) {
     console.error(error);
@@ -47,7 +78,6 @@ const GetAllPosts = async (req, res) => {
     });
   }
 };
-
 
 const SearchPost = async (req, res) => {
   try {
