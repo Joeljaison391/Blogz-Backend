@@ -14,6 +14,7 @@ const GetPostById = async (req, res) => {
         author: {
           select: {
             username: true,
+            avatarUrl: true,
           },
         },
       },
@@ -56,6 +57,7 @@ const GetAllPosts = async (req, res) => {
         author: {
           select: {
             username: true,
+            avatarUrl: true,
           },
         },
       },
