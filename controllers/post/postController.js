@@ -8,8 +8,28 @@ const CreatePost = async (req, res) => {
   try {
     const validateData = CreatePostSchema.parse(req.body);
     const userId = req.user.userId;
-    console.log(userId);
+    const tagsInput = validateData.tags; // Assume tags are passed as an array of strings
+
     const newPost = await prisma.$transaction(async (prisma) => {
+      // Check if each tag exists; if not, create the tag
+      const tags = await Promise.all(
+        tagsInput.map(async (tagName) => {
+          let tag = await prisma.tag.findUnique({
+            where: { name: tagName },
+          });
+
+          // If tag doesn't exist, create a new tag
+          if (!tag) {
+            tag = await prisma.tag.create({
+              data: { name: tagName },
+            });
+          }
+
+          return tag;
+        })
+      );
+
+      // Create the post
       return await prisma.post.create({
         data: {
           title: validateData.title,
@@ -18,11 +38,9 @@ const CreatePost = async (req, res) => {
           status: validateData.status || "draft",
           publishAt: new Date(),
           authorId: userId,
-          tags: validateData.tags
-            ? {
-                connect: validateData.tags.map((tagId) => ({ id: tagId })),
-              }
-            : undefined,
+          tags: {
+            connect: tags.map((tag) => ({ tagId: tag.tagId })),
+          },
           metadata: validateData.metadata
             ? {
                 create: validateData.metadata,
@@ -143,6 +161,7 @@ const DeletePost = async (req, res) => {
     });
   }
 };
+
 
 module.exports = {
   CreatePost,

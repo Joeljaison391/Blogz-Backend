@@ -8,7 +8,8 @@ const CreatePostSchema = z.object({
   content: z.string().min(1, "Content must be at least 1 character"),
   imageUrl: z.string().optional().nullable(),
   status: z.enum(["draft", "published", "archived"]).default("draft"),
-  tags: z.array(z.number().int()).optional(),
+  // let the tags be optional and be string for time being
+  tags: z.array(z.string()).optional(),
   metadata: z
     .object({
       metaTitle: z.string().optional(),

@@ -148,8 +148,35 @@ const SearchPost = async (req, res) => {
   }
 };
 
+const SearchTags = async (req, res) => {
+  try {
+    const searchInput = req.query.q; // Get the query parameter from the request
+
+    // Find tags starting with the search input
+    const tags = await prisma.tag.findMany({
+      where: {
+        name: {
+          startsWith: searchInput,
+        },
+      },
+    });
+
+    return res.status(200).json({
+      message: "Tags fetched successfully",
+      tags,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Server Error",
+      error,
+    });
+  }
+};
+
 module.exports = {
   GetPostById,
   GetAllPosts,
-  SearchPost
+  SearchPost,
+  SearchTags,
 };

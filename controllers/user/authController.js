@@ -181,6 +181,8 @@ const LoginUser = async (req, res) => {
         },
       });
     }
+
+
    
     res.cookie("token", token, {
       httpOnly: true,
@@ -188,6 +190,8 @@ const LoginUser = async (req, res) => {
       sameSite: "strict",
       maxAge: 3600000, // 1 hour in milliseconds
     });
+
+    
     
     console.log("logged")
     return res.status(200).json({ message: "Logged in successfully", user });
