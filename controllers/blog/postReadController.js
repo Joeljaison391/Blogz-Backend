@@ -174,9 +174,44 @@ const SearchTags = async (req, res) => {
   }
 };
 
+// get post authors by id as array of author objects
+// input will be array of postid
+// output will be array of author objects
+const GetPostAuthorsById = async (postIdsString) => {
+  // convert the string of elements seprated by comma into array of integers
+  const postIds = postIdsString.split(',').map(Number);
+
+
+  try {
+    const authors = await prisma.post.findMany({
+      where: {
+        postId: {
+          in: postIds,
+        },
+      },
+      select: {
+        author: {
+          select: {
+            username: true,
+            joinedDate: true,
+            avatarUrl: true,
+          },
+        },
+      },
+    });
+
+    return authors.map(post => post.author);
+  } catch (error) {
+    console.error(error);
+    throw new Error("Error fetching authors");
+  }
+};
+
+
 module.exports = {
   GetPostById,
   GetAllPosts,
   SearchPost,
   SearchTags,
+  GetPostAuthorsById,
 };
