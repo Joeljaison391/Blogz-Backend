@@ -109,9 +109,44 @@ const UpdateUser = async (req, res) => {
     .json({ message: "User details updated successfully", user: updatedUser });
 };
 
+
+const GetAuthenticatedUser = async (req, res) => {
+  const userId = req.user.userId;
+
+  const user = await prisma.user.findFirst({
+    where: {
+      userId: parseInt(userId),
+    },
+    select: {
+      userId: true,
+      username: true,
+      avatarUrl: true,
+      githubHandle: true,   
+      linkedinHandle: true,  
+      joinedDate: true,             
+      personalWebsite: true, 
+      education: true,       
+      workPronoun: true,     
+      about: true,           
+      badges: true,                
+      skills: true,                
+      availableFor: true,          
+      currentlyHacking : true,
+      location        : true,
+      currentlyLearning: true,
+      brandColor: true,      
+      email: true,
+      authenticated: true,
+    },
+  });
+
+  res.status(200).json({ user });
+};
+
 module.exports = {
     RequestEmailVerification,
     UpdateUser,
     VerifyEmail,
-    GetUserByEmail
+    GetUserByEmail,
+    GetAuthenticatedUser
 }
